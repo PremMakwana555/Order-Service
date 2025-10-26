@@ -1,14 +1,3 @@
-
-    /**
-     * Find order by payment ID.
-     */
-    Optional<Order> findByPaymentId(String paymentId);
-
-    /**
-     * Find orders created after a specific date.
-     */
-    List<Order> findByCreatedAtAfter(LocalDateTime date);
-}
 package com.ecommerce.order_service.domain.repository;
 
 import com.ecommerce.order_service.domain.entity.Order;
@@ -41,3 +30,13 @@ public interface OrderRepository extends JpaRepository<Order, String> {
      */
     List<Order> findByUserIdAndStatus(String userId, OrderStatus status);
 
+    /**
+     * Find order by payment ID.
+     */
+    Optional<Order> findByPaymentId(String paymentId);
+
+    /**
+     * Find orders created after a specific date.
+     */
+    List<Order> findByCreatedAtAfter(LocalDateTime date);
+}

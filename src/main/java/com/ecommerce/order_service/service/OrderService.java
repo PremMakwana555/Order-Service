@@ -79,9 +79,10 @@ public class OrderService {
                 .build();
 
         // Add order lines
+        final Order finalOrder = order;
         request.getItems().forEach(itemRequest -> {
             OrderLine orderLine = orderMapper.toOrderLine(itemRequest);
-            order.addOrderLine(orderLine);
+            finalOrder.addOrderLine(orderLine);
         });
 
         // Save order

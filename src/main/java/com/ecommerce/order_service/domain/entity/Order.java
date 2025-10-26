@@ -1,39 +1,3 @@
-    @Builder.Default
-    private List<OrderLine> orderLines = new ArrayList<>();
-
-    /**
-     * Helper method to add an order line to this order.
-     */
-    public void addOrderLine(OrderLine orderLine) {
-        orderLines.add(orderLine);
-        orderLine.setOrder(this);
-    }
-
-    /**
-     * Helper method to remove an order line from this order.
-     */
-    public void removeOrderLine(OrderLine orderLine) {
-        orderLines.remove(orderLine);
-        orderLine.setOrder(null);
-    }
-}
-
-    @Column(name = "shipping_address", columnDefinition = "TEXT")
-    private String shippingAddress;
-
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
-
-    @Version
-    @Column(name = "version", nullable = false)
-    private Long version;
-
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 package com.ecommerce.order_service.domain.entity;
 
 import jakarta.persistence.*;
@@ -77,3 +41,38 @@ public class Order {
     @Column(name = "payment_id", length = 36)
     private String paymentId;
 
+    @Column(name = "shipping_address", columnDefinition = "TEXT")
+    private String shippingAddress;
+
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
+
+    @Version
+    @Column(name = "version", nullable = false)
+    private Long version;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<OrderLine> orderLines = new ArrayList<>();
+
+    /**
+     * Helper method to add an order line to this order.
+     */
+    public void addOrderLine(OrderLine orderLine) {
+        orderLines.add(orderLine);
+        orderLine.setOrder(this);
+    }
+
+    /**
+     * Helper method to remove an order line from this order.
+     */
+    public void removeOrderLine(OrderLine orderLine) {
+        orderLines.remove(orderLine);
+        orderLine.setOrder(null);
+    }
+}

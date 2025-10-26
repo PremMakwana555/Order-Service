@@ -1,3 +1,17 @@
+package com.ecommerce.order_service.domain.entity;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
+
+/**
+ * OutboxEvent entity for implementing the transactional outbox pattern.
+ * Ensures atomicity between database changes and event publishing.
  */
 @Entity
 @Table(name = "outbox_events")
@@ -34,18 +48,4 @@ public class OutboxEvent {
     @Column(name = "published_at")
     private LocalDateTime publishedAt;
 }
-package com.ecommerce.order_service.domain.entity;
-
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-
-import java.time.LocalDateTime;
-
-/**
- * OutboxEvent entity for implementing the transactional outbox pattern.
- * Ensures atomicity between database changes and event publishing.
 
