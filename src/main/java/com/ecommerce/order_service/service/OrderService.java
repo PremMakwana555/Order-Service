@@ -38,6 +38,7 @@ public class OrderService {
     private final OutboxService outboxService;
     private final OrderMapper orderMapper;
     private final ObjectMapper objectMapper;
+    private final OrderIdGenerator orderIdGenerator;
 
     /**
      * Create a new order with idempotency support.
@@ -61,7 +62,7 @@ public class OrderService {
         }
 
         // Generate IDs
-        String orderId = UUID.randomUUID().toString();
+        String orderId = orderIdGenerator.generateOrderId();
         String sagaId = UUID.randomUUID().toString();
 
         // Calculate total amount
@@ -80,10 +81,8 @@ public class OrderService {
 
         // Add order lines
         final Order finalOrder = order;
-        request.getItems().forEach(itemRequest -> {
-            OrderLine orderLine = orderMapper.toOrderLine(itemRequest);
-            finalOrder.addOrderLine(orderLine);
-        });
+        List<OrderLine> orderLines = orderMapper.toOrderLineList(request.getItems());
+        orderLines.forEach(finalOrder::addOrderLine);
 
         // Save order
         order = orderRepository.save(order);
@@ -113,7 +112,7 @@ public class OrderService {
     @Transactional(readOnly = true)
     public OrderResponse getOrderById(String orderId) {
         log.debug("Fetching order: {}", orderId);
-        Order order = orderRepository.findById(orderId)
+        Order order = orderRepository.findByOrderId(orderId)
                 .orElseThrow(() -> new OrderNotFoundException("Order not found: " + orderId));
         return orderMapper.toResponse(order);
     }
@@ -135,7 +134,7 @@ public class OrderService {
     @Transactional
     public void updateOrderStatus(String orderId, OrderStatus status) {
         log.info("Updating order {} to status: {}", orderId, status);
-        Order order = orderRepository.findById(orderId)
+        Order order = orderRepository.findByOrderId(orderId)
                 .orElseThrow(() -> new OrderNotFoundException("Order not found: " + orderId));
         order.setStatus(status);
         orderRepository.save(order);
@@ -147,7 +146,7 @@ public class OrderService {
     @Transactional
     public void updateOrderPaymentId(String orderId, String paymentId) {
         log.info("Updating order {} with payment ID: {}", orderId, paymentId);
-        Order order = orderRepository.findById(orderId)
+        Order order = orderRepository.findByOrderId(orderId)
                 .orElseThrow(() -> new OrderNotFoundException("Order not found: " + orderId));
         order.setPaymentId(paymentId);
         orderRepository.save(order);
@@ -213,4 +212,3 @@ public class OrderService {
         }
     }
 }
-

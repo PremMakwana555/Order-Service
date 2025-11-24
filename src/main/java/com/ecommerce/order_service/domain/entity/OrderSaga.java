@@ -25,7 +25,7 @@ public class OrderSaga {
     @Column(name = "saga_id", length = 36)
     private String sagaId;
 
-    @Column(name = "order_id", nullable = false, length = 36)
+    @Column(name = "order_id", nullable = false, length = 20)
     private String orderId;
 
     @Enumerated(EnumType.STRING)
@@ -43,4 +43,3 @@ public class OrderSaga {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 }
-

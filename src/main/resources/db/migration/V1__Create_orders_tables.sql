@@ -1,6 +1,6 @@
 -- Create orders table
 CREATE TABLE orders (
-    order_id VARCHAR(36) PRIMARY KEY,
+    order_id VARCHAR(20) PRIMARY KEY,
     user_id VARCHAR(36) NOT NULL,
     status VARCHAR(50) NOT NULL,
     total_amount DECIMAL(10, 2) NOT NULL,
@@ -17,7 +17,7 @@ CREATE TABLE orders (
 -- Create order_lines table
 CREATE TABLE order_lines (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    order_id VARCHAR(36) NOT NULL,
+    order_id VARCHAR(20) NOT NULL,
     product_id VARCHAR(36) NOT NULL,
     product_name VARCHAR(255) NOT NULL,
     quantity INT NOT NULL,
@@ -45,7 +45,7 @@ CREATE TABLE outbox_events (
 -- Create order_saga table for saga orchestration
 CREATE TABLE order_saga (
     saga_id VARCHAR(36) PRIMARY KEY,
-    order_id VARCHAR(36) NOT NULL,
+    order_id VARCHAR(20) NOT NULL,
     state VARCHAR(50) NOT NULL,
     payload JSON NOT NULL,
     last_updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -64,4 +64,3 @@ CREATE TABLE idempotency_keys (
     expires_at TIMESTAMP NOT NULL,
     INDEX idx_expires_at (expires_at)
 );
-

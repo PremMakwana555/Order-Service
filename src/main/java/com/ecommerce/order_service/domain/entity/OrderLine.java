@@ -24,7 +24,7 @@ public class OrderLine {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id", nullable = false)
+    @JoinColumn(name = "order_id", referencedColumnName = "order_id", nullable = false)
     private Order order;
 
     @Column(name = "product_id", nullable = false, length = 36)
@@ -46,4 +46,3 @@ public class OrderLine {
         return unitPrice.multiply(BigDecimal.valueOf(quantity));
     }
 }
-

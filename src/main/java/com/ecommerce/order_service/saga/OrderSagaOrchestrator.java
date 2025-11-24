@@ -97,6 +97,20 @@ public class OrderSagaOrchestrator {
             outboxService.saveEvent("Order", event.getOrderId(), "OrderConfirmed", confirmedEvent);
             log.info("Order confirmed successfully: {}", event.getOrderId());
 
+            // Publish notification request
+            NotificationRequestedCommand notificationCommand = NotificationRequestedCommand.builder()
+                    .orderId(event.getOrderId())
+                    .userId(event.getUserId())
+                    .notificationType("ORDER_CONFIRMED")
+                    .message("Your order " + event.getOrderId() + " has been confirmed.")
+                    .correlationId(event.getCorrelationId())
+                    .sagaId(event.getSagaId())
+                    .timestamp(LocalDateTime.now())
+                    .build();
+
+            outboxService.saveEvent("Order", event.getOrderId(), "NotificationRequested", notificationCommand);
+            log.info("Notification request published for order: {}", event.getOrderId());
+
         } catch (Exception e) {
             log.error("Error handling payment success for order: {}", event.getOrderId(), e);
             handleSagaFailure(event.getSagaId(), event.getOrderId(), "Error processing payment success");

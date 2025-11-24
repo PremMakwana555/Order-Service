@@ -25,7 +25,10 @@ import java.util.List;
 public class Order {
 
     @Id
-    @Column(name = "order_id", length = 36)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "order_id", unique = true, nullable = false, length = 20)
     private String orderId;
 
     @Column(name = "user_id", nullable = false, length = 36)

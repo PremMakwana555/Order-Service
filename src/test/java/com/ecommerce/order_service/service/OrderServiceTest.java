@@ -5,6 +5,7 @@ import com.ecommerce.order_service.api.dto.OrderItemRequest;
 import com.ecommerce.order_service.api.dto.OrderResponse;
 import com.ecommerce.order_service.api.mapper.OrderMapper;
 import com.ecommerce.order_service.domain.entity.Order;
+import com.ecommerce.order_service.domain.entity.OrderLine;
 import com.ecommerce.order_service.domain.entity.OrderStatus;
 import com.ecommerce.order_service.domain.repository.IdempotencyKeyRepository;
 import com.ecommerce.order_service.domain.repository.OrderRepository;
@@ -52,6 +53,9 @@ class OrderServiceTest {
     @Mock
     private ObjectMapper objectMapper;
 
+    @Mock
+    private OrderIdGenerator orderIdGenerator;
+
     @InjectMocks
     private OrderService orderService;
 
@@ -85,13 +89,15 @@ class OrderServiceTest {
     @Test
     void createOrder_shouldCreateOrderSuccessfully() throws Exception {
         // Given
+        when(orderIdGenerator.generateOrderId()).thenReturn("ORD-1234567890");
         when(idempotencyKeyRepository.findById(anyString())).thenReturn(Optional.empty());
         when(orderRepository.save(any(Order.class))).thenReturn(order);
         when(sagaRepository.save(any())).thenReturn(null);
-        when(orderMapper.toResponse(any(Order.class))).thenReturn(new OrderResponse());
         when(objectMapper.writeValueAsString(any())).thenReturn("{}");
 
-        // When
+        // Mock toResponse
+        when(orderMapper.toResponse(any(Order.class))).thenReturn(new OrderResponse());
+        when(orderMapper.toOrderLineList(anyList())).thenReturn(java.util.List.of(new OrderLine()));
         OrderResponse response = orderService.createOrder(createOrderRequest, "idempotency-key-123", "correlation-123");
 
         // Then
@@ -104,7 +110,7 @@ class OrderServiceTest {
     @Test
     void getOrderById_shouldReturnOrder() {
         // Given
-        when(orderRepository.findById("order-123")).thenReturn(Optional.of(order));
+        when(orderRepository.findByOrderId("order-123")).thenReturn(Optional.of(order));
         when(orderMapper.toResponse(order)).thenReturn(new OrderResponse());
 
         // When
@@ -112,13 +118,13 @@ class OrderServiceTest {
 
         // Then
         assertThat(response).isNotNull();
-        verify(orderRepository).findById("order-123");
+        verify(orderRepository).findByOrderId("order-123");
     }
 
     @Test
     void getOrderById_shouldThrowExceptionWhenNotFound() {
         // Given
-        when(orderRepository.findById("order-123")).thenReturn(Optional.empty());
+        when(orderRepository.findByOrderId("order-123")).thenReturn(Optional.empty());
 
         // When/Then
         assertThatThrownBy(() -> orderService.getOrderById("order-123"))
@@ -129,7 +135,7 @@ class OrderServiceTest {
     @Test
     void updateOrderStatus_shouldUpdateSuccessfully() {
         // Given
-        when(orderRepository.findById("order-123")).thenReturn(Optional.of(order));
+        when(orderRepository.findByOrderId("order-123")).thenReturn(Optional.of(order));
         when(orderRepository.save(any(Order.class))).thenReturn(order);
 
         // When
@@ -140,4 +146,3 @@ class OrderServiceTest {
         assertThat(order.getStatus()).isEqualTo(OrderStatus.CONFIRMED);
     }
 }
-

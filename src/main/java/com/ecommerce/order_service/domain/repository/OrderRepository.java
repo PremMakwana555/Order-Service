@@ -13,7 +13,12 @@ import java.util.Optional;
  * Repository interface for Order entity operations.
  */
 @Repository
-public interface OrderRepository extends JpaRepository<Order, String> {
+public interface OrderRepository extends JpaRepository<Order, Long> {
+
+    /**
+     * Find order by business order ID.
+     */
+    Optional<Order> findByOrderId(String orderId);
 
     /**
      * Find all orders for a specific user.
