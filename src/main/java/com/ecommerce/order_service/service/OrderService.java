@@ -14,6 +14,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -96,6 +97,8 @@ public class OrderService {
 
         // Prepare response
         OrderResponse response = orderMapper.toResponse(order);
+        // ensure caller has the sagaId so orchestrator can find the persisted saga
+        response.setSagaId(sagaId);
 
         // Store idempotency key
         if (idempotencyKey != null) {
@@ -200,6 +203,17 @@ public class OrderService {
             idempotencyKeyRepository.save(idempotencyKey);
         } catch (JsonProcessingException e) {
             log.error("Error storing idempotency key", e);
+        } catch (DataIntegrityViolationException dive) {
+            // Another request inserted the same idempotency key concurrently. Safe to ignore.
+            log.warn("Idempotency key {} already exists (concurrent insert). Reading stored response.", key);
+            try {
+                IdempotencyKey existing = idempotencyKeyRepository.findById(key).orElse(null);
+                if (existing != null) {
+                    // No further action; response already stored by concurrent request
+                }
+            } catch (Exception ex) {
+                log.error("Error reading idempotency key after concurrent insert: {}", key, ex);
+            }
         }
     }
 

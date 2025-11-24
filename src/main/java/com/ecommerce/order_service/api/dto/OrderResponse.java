@@ -21,6 +21,8 @@ public class OrderResponse {
 
     private String orderId;
     private String userId;
+    // Saga identifier for correlating long-running workflows
+    private String sagaId;
     private OrderStatus status;
     private BigDecimal totalAmount;
     private String paymentId;
@@ -29,4 +31,3 @@ public class OrderResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
-

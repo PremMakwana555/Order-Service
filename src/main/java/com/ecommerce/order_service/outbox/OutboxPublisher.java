@@ -23,7 +23,7 @@ import java.util.List;
 public class OutboxPublisher {
 
     private final OutboxService outboxService;
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
 
     /**
@@ -53,15 +53,17 @@ public class OutboxPublisher {
 
     private void publishEvent(OutboxEvent event) throws Exception {
         String topic = getTopicForEventType(event.getEventType());
-        Object payload = objectMapper.readValue(event.getPayload(), Object.class);
+        // payload is stored as JSON already in the OutboxEvent
+        String payloadJson = event.getPayload();
 
-        Message<Object> message = MessageBuilder
-                .withPayload(payload)
+        Message<String> message = MessageBuilder
+                .withPayload(payloadJson)
                 .setHeader(KafkaHeaders.TOPIC, topic)
                 .setHeader(KafkaHeaders.KEY, event.getAggregateId())
                 .setHeader("eventType", event.getEventType())
                 .setHeader("aggregateType", event.getAggregateType())
                 .setHeader("aggregateId", event.getAggregateId())
+                .setHeader(KafkaHeaders.CONTENT_TYPE, "application/json")
                 .build();
 
         kafkaTemplate.send(message);
@@ -88,4 +90,3 @@ public class OutboxPublisher {
         outboxService.cleanupOldEvents(7); // Keep events for 7 days
     }
 }
-

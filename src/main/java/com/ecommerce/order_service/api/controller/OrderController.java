@@ -51,7 +51,7 @@ public class OrderController {
 
             // Trigger saga to request payment
             sagaOrchestrator.startPaymentRequest(
-                    correlationId, // Using correlationId as sagaId for simplicity
+                    orderResponse.getSagaId(), // use the persisted sagaId returned by the service
                     orderResponse.getOrderId(),
                     orderResponse.getUserId(),
                     orderResponse.getTotalAmount(),
@@ -128,4 +128,3 @@ public class OrderController {
         }
     }
 }
-
